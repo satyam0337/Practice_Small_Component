@@ -17,8 +17,10 @@ const CounterUseState = () => {
       <button onClick={() => sub()} disabled={count === 0}>-</button>
       <button onClick={() => add()}> + </button>
 
-      {/* <button onClick={() => setCount(count - 1)} disabled={count === 0}>-</button> */}
-      {/* <button onClick={() => setCount(count + 1)}> + </button> */}
+    {/* we can use set count dircet without any handleClick function  */}
+      
+     <button onClick={() => setCount(count - 1)} disabled={count === 0}>-</button> 
+     <button onClick={() => setCount(count + 1)}> + </button> 
           
     </div>
   );
