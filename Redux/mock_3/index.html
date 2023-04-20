@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Home Page</title>
+  <style>
+    /* All Your css for Home page goes here  */
+
+
+    .buy {
+
+      border: none;
+      border-radius: 10px;
+      background-color: #2bb6f6;
+      color: white;
+      padding: 10px 20px;
+      margin-left: 70%;
+
+    }
+
+    
+
+    #filter {
+      display: flex;
+      gap: 5px;
+    }
+
+    #filter {
+      display: flex;
+
+      align-items: center;
+      gap: 10px;
+      box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
+      width: fit-content;
+      padding: 20px;
+
+    }
+
+   .nav { 
+      margin-bottom: 20px;
+      display: flex;
+      height: 50px;
+      text-align: center;
+      align-items: center;
+      justify-content: space-evenly;
+      box-shadow: rgba(0, 0, 0, 0.25) 0px 54px 55px, rgba(0, 0, 0, 0.12) 0px -12px 30px, rgba(0, 0, 0, 0.12) 0px 4px 6px, rgba(0, 0, 0, 0.17) 0px 12px 13px, rgba(0, 0, 0, 0.09) 0px -3px 5px;
+    }
+
+    .nav>a {
+      text-decoration: none;
+      font-weight: bolder;
+      color: blue;
+    }
+
+    .card {
+      width: 90%;
+      margin: auto;
+      padding: 10px;
+      box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
+    }
+
+    .card>img {
+      width: 90%;
+      height: 300px;
+
+    }
+
+    #menu-container {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+    }
+
+    .ingbox {
+      display: flex;
+      justify-content: space-between;
+    }
+
+    #fs {
+      display: flex;
+      justify-content: space-evenly;
+    }
+
+    #sorting {
+      display: flex;
+
+      align-items: center;
+      gap: 10px;
+      box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
+      width: fit-content;
+      padding: 20px;
+    }
+
+    #sort {
+      height: 50%;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="nav" >
+    
+  
+      <h1>Web Coffee Shop Menu</h1>
+      <a href="./index.html">Home</a>
+      <a href="./order.html">Ordered</a>
+
+
+  </div>
+
+
+  <div id="fs">
+
+
+    <div id="filter">
+      <h2> Filter By Price Range </h2>
+      <div id="filter">
+        <input type="number" id="lower" placeholder="minimum value" />
+        <input type="number" id="upper" placeholder="maximum value" />
+        <button id="filter-btn" onclick="filter()">Filter</button>
+      </div>
+
+
+    </div>
+    <div id="sorting">
+      <h2> Sorting</h2>
+      <select id="sort" onchange="sorting()">
+
+        <option value="">Sort By Price</option>
+        <option value="asc">Ascending</option>
+        <option value="desc">Descending</option>
+      </select>
+    </div>
+  </div>
+
+  <h1 id="alert"></h1>
+  <div id="menu-container">
+    <!-- Here Append All the Items  -->
+  </div>
+</body>
+<script>
+  // All your JS code for Home Page goes here
+  const url = `https://dbioz2ek0e.execute-api.ap-south-1.amazonaws.com/mockapi/get-coffee`;
+
+
+  async function getcoffee() {
+    let data = await fetch(url);
+    let res = await data.json();
+      res.data.forEach((item) => {
+      item.quantity = 0;
+    });
+    appendcoffee(res.data)
+  }
+  
+  async function sorting() {
+    let selectValue = document.getElementById("sort").value;
+    let data = await fetch(`https://dbioz2ek0e.execute-api.ap-south-1.amazonaws.com/mockapi/get-coffee?sort=price&order=${selectValue}`);
+    let res = await data.json();
+    appendcoffee(res.data)
+  }
+
+  async function filter() {
+    let uper = document.getElementById("lower").value;
+    let lower = document.getElementById("upper").value;
+
+    let data = await fetch(url);
+    let res = await data.json();
+
+    let filterdata = res.data.filter((el) => el.price >= uper && el.price <= lower)
+    appendcoffee(filterdata)
+  }
+
+
+  function appendcoffee(data) {
+    let cnt = document.getElementById("menu-container");
+    cnt.innerHTML = '';
+
+    data.forEach(function (el) {
+      let card = document.createElement("div");
+      card.className = "card"
+
+      let img = document.createElement("img");
+      img.src = el.image;
+
+      let title = document.createElement("h2");
+      title.innerText = el.title;
+
+      let description = document.createElement("p");
+      description.innerText = el.description;
+
+      let ingbox = document.createElement("div");
+      ingbox.className = "ingbox"
+
+      el.ingredients.map(function (el) {
+        let ingredient = document.createElement("p");
+        ingredient.innerText = el;
+        ingbox.append(ingredient);
+      })
+
+      let price = document.createElement("p");
+      price.className = "price"
+      price.innerText = "₹ " + el.price;
+
+      let buy = document.createElement("button");
+      buy.className = "buy";
+
+      buy.addEventListener("click", function () {
+        addtocart(el)
+      })
+      buy.innerText = "Buy";
+
+      card.append(img, title, ingbox, description, price, buy)
+      cnt.append(card)
+    })
+  }
+  getcoffee()
+
+  function addtocart(el) {
+el.quantity++
+    let bag = JSON.parse(localStorage.getItem("buy")) || [];
+    console.log(el);
+    if (bag.length == 0) {
+      bag.push(el);
+      localStorage.setItem("buy", JSON.stringify(bag))
+      document.getElementById("alert").innerText = "Successfully Placed Order"
+    }
+    else {
+      let flag = false;
+
+      for (let i = 0; i < bag.length; i++) {
+        if (bag[i].id == el.id) {
+          flag = true;
+        }
+      }
+      if (flag) {
+        document.getElementById("alert").innerText = "Already Placed Order"
+      }
+      else {
+        bag.push(el);
+        localStorage.setItem("buy", JSON.stringify(bag))
+        document.getElementById("alert").innerText = "Successfully Placed Order"
+
+      }
+    }
+
+  }
+
+
+
+</script>
+</body>
+
+</html>

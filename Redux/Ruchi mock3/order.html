@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Order Page</title>
+  <style>
+    /* All Your css for Order page goes here  */
+
+    .nav {
+      display: flex;
+      height: 50px;
+      text-align: center;
+      align-items: center;
+      justify-content: space-evenly;
+      box-shadow: rgba(0, 0, 0, 0.25) 0px 54px 55px, rgba(0, 0, 0, 0.12) 0px -12px 30px, rgba(0, 0, 0, 0.12) 0px 4px 6px, rgba(0, 0, 0, 0.17) 0px 12px 13px, rgba(0, 0, 0, 0.09) 0px -3px 5px;
+    }
+
+    .nav>a {
+      text-decoration: none;
+      font-weight: bolder;
+      color: blue;
+    }
+
+    .card {
+      width: 50%;
+      display: flex;
+      justify-content: space-between;
+    }
+    .card img{
+width: 50%;
+height: 200px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="nav">
+    <h1>Web Coffee Shop Menu</h1>
+    <a href="./index.html">Home</a>
+    <a href="./order.html">Ordered</a>
+  </div>
+  <h1 id="total">
+    Your total order value is :- <span id="order-total">0</span>
+  </h1>
+  <div id="cupon">
+    <input type="text" id="coupon-input" />
+    <button id="coupon-btn">Add Cupon</button>
+  </div>
+  <div id="order-container">
+    <!-- Here Append All the Order Cards here-->
+  </div>
+</body>
+<script>
+
+  // All your JS code for Order Page goes here
+  const cartItems = JSON.parse(localStorage.getItem('buy')) || [];
+  const orderContainer = document.getElementById('order-container');
+  const orderTotal = document.getElementById('order-total');
+  const couponInput = document.getElementById('coupon-input');
+  const couponBtn = document.getElementById('coupon-btn');
+  let couponApplied = false;
+
+  // Function to display items in the cart
+  function displayCart() {
+    orderContainer.innerHTML = '';
+    let total = 0;
+
+    // Loop over the cart items and create a card for each item
+    for (let i = 0; i < cartItems.length; i++) {
+      const item = cartItems[i];
+      const card = document.createElement('div');
+      card.classList.add('card');
+      const box = document.createElement('div');
+      box.classList.add('box');
+
+      const img = document.createElement('img');
+      img.src = item.image;
+      const title = document.createElement('h3');
+      title.innerText = item.title;
+      const price = document.createElement('p');
+      price.innerText = `Price: $${item.price}`;
+
+      const quantity = document.createElement('p');
+
+
+      const decreaseBtn = document.createElement('button');
+      decreaseBtn.innerText = '-';
+
+      decreaseBtn.addEventListener('click', () => {
+        if (item.quantity > 1) {
+          item.quantity--;
+
+          quantity.append(decreaseBtn, ` ${item.quantity} `, increaseBtn);
+          price.innerText = `Price: $${item.quantity * item.price}`;
+          total -= item.price;
+          orderTotal.innerText = `$${total}`;
+        }
+      });
+
+      const increaseBtn = document.createElement('button');
+      increaseBtn.innerText = '+';
+
+      quantity.innerText = `Quantity:  `;
+
+      increaseBtn.addEventListener('click', () => {
+        item.quantity++;
+        quantity.append(decreaseBtn, ` ${item.quantity} `, increaseBtn);
+        price.innerText = `Price: $${item.quantity * item.price}`;
+        total += item.price;
+        orderTotal.innerText = `$${total}`;
+
+      });
+
+      const cancelBtn = document.createElement('button');
+      cancelBtn.innerText = 'Cancel';
+
+      cancelBtn.addEventListener('click', () => {
+
+        total -= item.price * item.quantity;
+        orderTotal.innerText = `$${total}`;
+        cartItems.splice(i, 1);
+        localStorage.setItem('buy', JSON.stringify(cartItems));
+        displayCart();
+
+      });
+
+
+
+      quantity.append(decreaseBtn, `${1} `, increaseBtn);
+
+
+
+      card.append(img);
+      box.append(title);
+      box.append(price);
+      box.append(quantity);
+      box.append(cancelBtn);
+      card.append(box)
+      orderContainer.append(card);
+      total += item.price * item.quantity;
+    }
+
+    orderTotal.innerText = `$${total}`;
+  }
+
+  displayCart();
+
+
+  function applyCoupon() {
+    const couponValue = couponInput.value.toLowerCase();
+    if (!couponApplied && couponValue === 'masai30') {
+      couponApplied = true;
+      let total = parseFloat(orderTotal.textContent.slice(1));
+      let discount = Math.floor(0.3 * total);
+      total -= discount;
+      orderTotal.textContent = '$' + total.toFixed(2);
+    }
+  }
+
+
+  couponBtn.addEventListener('click', applyCoupon);
+
+
+
+</script>
+
+</html>
