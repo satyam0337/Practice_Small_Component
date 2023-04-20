@@ -7,11 +7,12 @@ const CounterRedux = () => {
   return (
     <div>
       <h1> {count} </h1>
-      <button disabled={count === 0} onClick={() => dispatch(sub())}>
-       
-        -
-      </button>
+      <button disabled={count === 0} onClick={() => dispatch(sub())}> - </button>
       <button onClick={() => dispatch(add())}> +</button>
+
+//      <button onClick={() => setCount(count - 1)} disabled={count === 0}>-</button>
+//      <button onClick={() => setCount(count + 1)}> + </button>
+
     </div>
   );
 };
